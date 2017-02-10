@@ -1,0 +1,112 @@
+package br.com.caelum.payfast.rest;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ejb.Singleton;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import br.com.caelum.payfast.modelo.Pagamento;
+import br.com.caelum.payfast.modelo.Transacao;
+
+
+
+@Path("/pagamentos")
+@Singleton
+public class PagamentoResource {
+
+
+	private static Map<Integer, Pagamento> repo = new HashMap<Integer, Pagamento>();
+	private Integer idPagamento = 1;
+	
+	public PagamentoResource() {
+		Pagamento pg = new Pagamento();
+		pg.setId(idPagamento++);
+		pg.setValor(BigDecimal.TEN);
+		pg.comStatusCriado();
+		repo.put(pg.getId(), pg);
+	}
+	
+	
+	@GET
+	@Produces({MediaType.APPLICATION_JSON})
+	public List<Pagamento> allPagamentos(){
+		List<Pagamento> pagamentos = new ArrayList<Pagamento>();
+		for (Integer chave : repo.keySet()) {
+			pagamentos.add(repo.get(chave));
+		}
+		return pagamentos;
+	}
+	 
+	@GET
+	@Path("/{id}")
+	@Produces({MediaType.APPLICATION_JSON})
+	public Pagamento buscaPagamento(@PathParam("id") Integer id){
+		return repo.get(id);
+	}
+	
+	
+
+	@POST
+	@Consumes({MediaType.APPLICATION_JSON})
+	public Response cadastro(Transacao transacao){
+		Pagamento pagamento = new Pagamento();
+		pagamento.setId(idPagamento++);
+		pagamento.setValor(transacao.getValor());
+		pagamento.comStatusCriado();
+		repo.put(pagamento.getId(), pagamento);
+		return Response.status(201).entity(pagamento)
+				.type(MediaType.APPLICATION_JSON)
+				.build();
+	}
+	
+	
+	@PUT
+	@Path("/{id}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	public Response confirmaPagamentos(@PathParam("id") Integer id){
+		Pagamento pagamento = repo.get(id);
+		pagamento.comStatusConfirmado();
+		repo.put(id, pagamento);
+		return Response.status(200).entity(pagamento)
+				.type(MediaType.APPLICATION_JSON)
+				.build();
+	}
+	
+	
+	@PATCH
+	@Path("/{id}")
+	@Produces({MediaType.APPLICATION_JSON})
+	public Pagamento cancelarPagamento(@PathParam("id") Integer id){
+		Pagamento pag = repo.get(id);
+		pag.comStatusCancelado();
+		repo.put(id, pag);
+		return pag;
+	}
+	
+	
+	@PUT
+	@Path("/{id}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	public Response alteraPagamento(String valor, @PathParam("id") Integer id){
+		Pagamento pagamento = repo.get(id);
+		pagamento.setValor(new BigDecimal(valor));
+		return Response.status(201).entity(pagamento).build();
+	}
+	
+	
+	
+	
+}
