@@ -24,7 +24,7 @@ import org.apache.oltu.oauth2.rs.request.OAuthAccessResourceRequest;
 
 import br.com.caelum.payfast.modelo.Pagamento;
 import br.com.caelum.payfast.modelo.Transacao;
-import br.com.caelum.payfast.oauth.TokenDao;
+import br.com.caelum.payfast.oauth2.TokenDao;
 
 
 //@Api(value = "pagamentos")
