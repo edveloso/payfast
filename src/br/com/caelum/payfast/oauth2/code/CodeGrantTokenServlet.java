@@ -17,6 +17,8 @@ import org.apache.oltu.oauth2.as.request.OAuthTokenRequest;
 import org.apache.oltu.oauth2.as.response.OAuthASResponse;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 
+import com.sun.xml.internal.bind.v2.TODO;
+
 import br.com.caelum.payfast.oauth2.TokenDao;
 
 @WebServlet("/oauth/code/token")
@@ -46,8 +48,14 @@ public class CodeGrantTokenServlet extends HttpServlet{
 			
 			OAuthResponse oAuthResponse = null;
 			// C�digo para gerar o access token
-			
-			
+			OAuthIssuer issuer = new OAuthIssuerImpl(new MD5Generator());
+			String accessToken = issuer.accessToken();
+			tokenDao.adicionaToken(accessToken);
+			oAuthResponse = OAuthASResponse
+								.tokenResponse(HttpServletResponse.SC_OK)
+								.setAccessToken(accessToken)
+								.setTokenType("Bearer")
+								.buildJSONMessage();
 			
 			// Envia o access token para o client application
 			resp.setHeader("Content-type", "application/json");

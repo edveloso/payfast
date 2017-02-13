@@ -16,6 +16,7 @@ import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.as.response.OAuthASResponse;
 import org.apache.oltu.oauth2.as.response.OAuthASResponse.OAuthAuthorizationResponseBuilder;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
+import org.apache.oltu.oauth2.rs.response.OAuthRSResponse;
 
 import br.com.caelum.payfast.oauth2.TokenDao;
 
@@ -33,12 +34,20 @@ public class CodeGrantAuthorizationServlet extends HttpServlet {
 			String senha = req.getParameter("senha");
 			String redirectURI = (String) session.getAttribute("redirectURI");
 			
-			// Valida as credenciais do usuário
+			// Valida as credenciais do usuï¿½rio
 			if("usuario".equals(login) && "senha".equals(senha)) {
 				OAuthResponse oAuthResponse = null;
-				// código para gerar o authorization code
+				// cï¿½digo para gerar o authorization code
+				OAuthIssuer issuer = new OAuthIssuerImpl(new MD5Generator());
+				String code = issuer.authorizationCode();
+				tokenDao.adicionaAuthorizationCode(code);
+
+				OAuthAuthorizationResponseBuilder builder = OAuthASResponse
+															.authorizationResponse(req, 302);
 				
-				
+				oAuthResponse = builder.location(redirectURI)
+									.setCode(code)
+									.buildQueryMessage();
 				
 				// Envia o authorization code para o client application
 				resp.sendRedirect(oAuthResponse.getLocationUri());
